@@ -1,0 +1,30 @@
+name: Build LaTeX Document
+
+on:
+  push:
+    branches:
+      - 'master'
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set Up Git Repository
+        uses: actions/checkout@v4
+      - name: Compile LaTeX Document
+        uses: xu-cheng/latex-action@v3
+        with:
+          work_in_root_file_dir: true
+          root_file: |
+            main.tex
+      - name: Bump version and push tag
+        id: bump
+        uses: anothrNick/github-tag-action@v1 # Don't use @master or @v1 unless you're happy to test the latest version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
+          WITH_V: false
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: main.pdf
+          tag_name: ${{ steps.bump.outputs.new_tag }}

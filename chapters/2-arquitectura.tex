@@ -9,7 +9,7 @@ Para procesar una consulta, es necesario realizar una serie de pasos.
 \begin{enumerate}
   \item Parser:
   \begin{itemize}
-    \item Valida la consulta (correctitud, autorización, etc).
+    \item Valida la sintáxis de la consulta (correctitud, autorización, etc).
     \item Convierte la consulta en un formato interno (algebra relacional).
     \item Optimizaciones menores.
   \end{itemize}
@@ -29,6 +29,69 @@ Para procesar una consulta, es necesario realizar una serie de pasos.
     \item Ejecutar el plan óptimo generado por el optimizador (pipelining).
   \end{itemize}
 \end{enumerate}
+
+\subsection{Sintáxis y Semántica}
+\begin{itemize}
+  \item Sintaxis: Es el conjunto de reglas que definen los strings válidos que tienen significado.
+  \item Semántica: Se refiere al significado de una consulta sintácticamente valida.
+\end{itemize}
+
+\subsection{Lexer y Parser}
+\subsubsection{Análisis Léxico}
+El analisis léxico consiste en dividir la consulta en una serie de tokens. Cada token es un string que representa una unidad léxica. Por ejemplo, en la consulta:
+\begin{verbatim}
+  SELECT pName, mStadium, goals
+  FROM Players, Matches, Players_Matches
+  WHERE pYear = 1990 AND mDate = '1990-01-01'
+\end{verbatim}
+
+Los tokens serían:
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{|c|c|}
+    \hline
+    \textbf{Token} & \textbf{Type} \\ \hline
+    SELECT & Keyword \\ \hline
+    pName & Identifier \\ \hline
+    mStadium & Identifier \\ \hline
+    goals & Identifier \\ \hline
+    FROM & Keyword \\ \hline
+    Players & Identifier \\ \hline
+    Matches & Identifier \\ \hline
+    Players\_Matches & Identifier \\ \hline
+    WHERE & Keyword \\ \hline
+    pYear & Identifier \\ \hline
+    = & Operator \\ \hline
+    1990 & Literal \\ \hline
+    AND & Keyword \\ \hline
+    mDate & Identifier \\ \hline
+    = & Operator \\ \hline
+    '1990-01-01' & Literal \\ \hline
+  \end{tabular}
+  \caption{Tokens y sus tipos}
+  \vspace{-1em} 
+\end{table}
+
+\subsection{Analisis sintactico}
+El analisis sintactico consiste en analizar la secuencia de tokens generada por el analisis léxico y determinar si es una secuencia válida.
+
+Utilizando gramaticas libres de contexto, se puede definir la sintaxis de una consulta SQL.
+
+\subsection{Gramatica}
+Una gramatica G es un par
+
+\begin{equation}
+  G = (V, T, P, S)
+\end{equation}
+
+donde:
+\begin{itemize}
+  \item $V$: Conjunto de variables no terminales.
+  \item $T$: Conjunto de terminales.
+  \item $P$: Conjunto de producciones.
+  \item $S$: Variable inicial.
+\end{itemize}
+
 
 \subsection{Plan físico}
 El plan físico es similar al plan lógico del álgebra relacional, pero este decide que algoritmo usar para cada operador, planifica la secuencia y el orden a ejecutar de los operadores, además de la forma de acceder a los datos (access path).

@@ -620,3 +620,65 @@ Para una relación $R$
 
 Bitmap index es muy útil para consultas con filtros complejos, columnas de baja cardinalidad y datos que sufren pocas modificaciones. Por otro lado, es bastante deficiente cuando los datos requieren ser actualizados frecuentemente.
 
+\section{Tablas de hash}
+Implementan un mapeo entre llaves y valores utilizando una funcion de hash que permite acceder a los valores de forma rápida. Las tablas de hash son una estructura de datos muy eficiente para almacenar y recuperar información.
+
+\begin{itemize}
+  \item Espacio: $\mathcal{O}(N)$
+  \item Tiempo de búsqueda: $\mathcal{O}(1)$, o $\mathcal{O}(N)$ en el peor de los casos.
+\end{itemize}
+
+\subsection{Funciones de hash}
+Permite mapear un espacio grande de llaves a un dominio pequeño. El principal trade-off es que mientras mas rapida sea de computar, mas colisiones se producen.
+
+Entre más memoria se use, menos colisiones se producen por lo tanto la busqueda es mas rapida, sin embargo esto a su vez produce un mayor costo de almacenamiento.
+
+\subsection{Linear probe hashing}
+
+\begin{itemize}
+  \item Reservo un arreglo grande para mis entradas
+  \item Si hay una colision, busco la siguiente posicion vacia en el arreglo.
+  \item Para buscar una entrada, voy hacia donde me lleva el hash y busco hacia adelante.
+  \item Se tiene un load factor que indica que tan lleno esta el arreglo. Si este factor supera un cierto umbral, duplico el tamaño del arreglo y rehago el hash de todas las entradas.
+\end{itemize}
+
+\subsubsection{Inserciones}
+\begin{itemize}
+  \item Calculo el hash de la entrada a insertar.
+  \item Si la posicion esta vacia, la inserto.
+  \item Si la posicion esta ocupada, busco la siguiente posicion vacia (o eliminada) y la inserto.
+\end{itemize}
+
+\subsubsection{Eliminaciones}
+\begin{itemize}
+  \item Primero busco la entrada a eliminar.
+  \item Si la encuentro, marco la posicion como eliminada.
+\end{itemize}
+
+\makeobservationbox{Nota}{Al momento de buscar si encontramos una posicion eliminada, debemos seguir buscando hasta encontrar una posicion vacia o la entrada que buscamos. Esto se hace para evitar que las entradas eliminadas interfieran con la busqueda.}
+
+\subsection{Robin Hood hashing}
+Tiene una logica similar a linear probe hashing, pero tambien cada elemento guarda que tan lejos esta de la posicion donde apuntaba el hash.
+
+\subsubsection{Inserciones}
+\begin{itemize}
+  \item Calculo el hash de la entrada a insertar.
+  \item Si la posicion esta vacia, la inserto.
+  \item Si la posicion esta ocupada, hago una busqueda lineal donde por cada posicion hago las siguientes comparaciones:
+  \begin{itemize}
+    \item Si la distancia del numero que estoy insertando es igual o menor del numero que ya estaba, sigo buscando.
+    \item Si la distancia del numero que estoy insertando es mayor, lo inserto en la posicion, tomo el numero que estaba y lo inserto hacia adelante con la misma logica. 
+  \end{itemize}
+\end{itemize}
+
+\subsubsection{Busqueda}
+Lo que nos permite este algoritmo es que al momento de buscar, es que si mientras buscamos encontramos una posicion que tiene un valor mayor a la distancia que tenemos, podemos parar la busqueda. Esto ocurre porque si el elemento buscado lo hubiesemos insertado ahi antes.
+
+\subsection{Filtros Bloom}
+Un filtro es una estructura de datos que responde a la pregunta de si un elemento pertenece a un conjunto o no. 
+
+Los filtros de bloom son probabilisticos, en el sentido de que pueden dar falsos positivos, pero nunca falsos negativos. Esto significa que si el filtro dice que un elemento no pertenece al conjunto, es seguro que no pertenece. Sin embargo, si dice que si pertenece, puede ser que no pertenezca.
+
+\subsubsection{Estructura}
+Es un arreglo de bits de tamaño $m$ y $k$ funciones de hash que mapean un elemento a una posicion en el arreglo. Cada vez que se inserta un elemento, se calculan las $k$ posiciones y se marcan como 1. Para verificar si un elemento pertenece al conjunto, se calculan las $k$ posiciones y si todas son 1, entonces el elemento puede pertenecer al conjunto. Si alguna de las posiciones es 0, entonces el elemento no pertenece al conjunto.
+
